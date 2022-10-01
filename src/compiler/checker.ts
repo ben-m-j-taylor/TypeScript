@@ -18905,6 +18905,26 @@ namespace ts {
                 }
             }
 
+            function getRelationErrorMessage(message: DiagnosticMessage, sourceType: string, targetType: string): DiagnosticMessage {
+                const typeLengthLimit = 30;
+
+                const isSourceTypeLongerThanLimit = sourceType.length > typeLengthLimit;
+                const isTargetTypeLongerThanLimit = targetType.length > typeLengthLimit;
+
+                if (!isSourceTypeLongerThanLimit && !isTargetTypeLongerThanLimit) {
+                    return message;
+                }
+                else {
+                    switch (message) {
+                        case Diagnostics.Type_0_is_not_assignable_to_type_1:
+                            return Diagnostics.Type_Colon_n_0_n_is_not_assignable_to_type_Colon_n_1;
+                        default:
+                            return message;
+                    }
+                }
+            }
+
+            // TODO: Make changes for 45896 here
             function reportRelationError(message: DiagnosticMessage | undefined, source: Type, target: Type) {
                 if (incompatibleStack) reportIncompatibleStack();
                 const [sourceType, targetType] = getTypeNamesForErrorDisplay(source, target);
@@ -18940,7 +18960,7 @@ namespace ts {
 
                 if (!message) {
                     if (relation === comparableRelation) {
-                        message = Diagnostics.Type_0_is_not_comparable_to_type_1;
+                        message = getRelationErrorMessage(Diagnostics.Type_0_is_not_comparable_to_type_1, sourceType, targetType);
                     }
                     else if (sourceType === targetType) {
                         message = Diagnostics.Type_0_is_not_assignable_to_type_1_Two_different_types_with_this_name_exist_but_they_are_unrelated;
